@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -98,23 +99,26 @@ fun AnimalHomeworkHard() {
 @OptIn(DelicateCoroutinesApi::class)
 fun animalHomeworkEasy() {
     // First bird
-    GlobalScope.launch {
+    GlobalScope.launch(CoroutineName("Tweety")) {
         repeat(4) {
             println("Coo")
+            println(coroutineContext[CoroutineName]?.name)
             delay(1_000)
         }
     }
     // Second bird
-    GlobalScope.launch {
+    GlobalScope.launch(CoroutineName("Zazu")) {
         repeat(4) {
             println("Caw")
+            println(coroutineContext[CoroutineName]?.name)
             delay(2_000)
         }
     }
     // Last bird
-    GlobalScope.launch {
+    GlobalScope.launch(CoroutineName("Woodstock")) {
         repeat(4) {
             println("Chirp")
+            println(coroutineContext[CoroutineName]?.name)
             delay(3_000)
         }
     }
