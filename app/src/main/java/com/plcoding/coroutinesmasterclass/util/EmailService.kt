@@ -1,8 +1,8 @@
 package com.plcoding.coroutinesmasterclass.util
 
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import kotlin.random.Random
 
 object EmailService {
@@ -13,7 +13,7 @@ object EmailService {
     }
 
     suspend fun sendNewsletter() {
-        coroutineScope {
+        supervisorScope {
             mailingList.forEach { emailAddress ->
                 launch {
                     sendEmail(emailAddress)
