@@ -1,4 +1,5 @@
 package com.plcoding.coroutinesmasterclass.sections.coroutine_learned_so_far.homework
+
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
@@ -34,17 +35,31 @@ class BiometricPromptManager(
             when (manager.canAuthenticate(authenticators)) {
                 BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE -> {
                     continuation.resume(BiometricResult.HardwareUnavailable)
+                    return@suspendCancellableCoroutine
                 }
 
                 BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE -> {
                     continuation.resume(BiometricResult.FeatureUnavailable)
+                    return@suspendCancellableCoroutine
                 }
 
                 BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> {
                     continuation.resume(BiometricResult.AuthenticationNotSet)
+                    return@suspendCancellableCoroutine
                 }
 
-                else -> Unit
+                BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED -> {
+                    continuation.resume(BiometricResult.SecurityUpdateRequired)
+                    return@suspendCancellableCoroutine
+                }
+
+                BiometricManager.BIOMETRIC_ERROR_UNSUPPORTED -> {
+                    continuation.resume(BiometricResult.FeatureUnavailable)
+                    return@suspendCancellableCoroutine
+                }
+
+                BiometricManager.BIOMETRIC_STATUS_UNKNOWN, BiometricManager.BIOMETRIC_SUCCESS -> {
+                }
             }
 
             val prompt = BiometricPrompt(
@@ -52,20 +67,31 @@ class BiometricPromptManager(
                 object : BiometricPrompt.AuthenticationCallback() {
                     override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
                         super.onAuthenticationError(errorCode, errString)
-                        continuation.resume(BiometricResult.AuthenticationError(errString.toString()))
+                        if (continuation.isActive) {
+                            continuation.resume(BiometricResult.AuthenticationError(errString.toString()))
+                        }
                     }
 
                     override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                         super.onAuthenticationSucceeded(result)
-                        continuation.resume(BiometricResult.AuthenticationSuccess)
+                        if (continuation.isActive) {
+                            continuation.resume(BiometricResult.AuthenticationSuccess)
+                        }
                     }
 
                     override fun onAuthenticationFailed() {
                         super.onAuthenticationFailed()
-                        continuation.resume(BiometricResult.AuthenticationFailed)
+                        if (continuation.isActive) {
+                            continuation.resume(BiometricResult.AuthenticationFailed)
+                        }
                     }
                 }
             )
+
+            continuation.invokeOnCancellation {
+                prompt.cancelAuthentication()
+            }
+
             prompt.authenticate(promptInfo.build())
         }
     }
