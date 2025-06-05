@@ -23,6 +23,7 @@ class FormViewModel : ViewModel() {
         .combine(
             password,
         ) { email, password ->
+            PatternsCompat.IP_ADDRESS
             val isValidEmail = PatternsCompat.EMAIL_ADDRESS.matcher(email).matches()
             val isValidPassword = password.any { !it.isLetterOrDigit() } &&
                     password.length > 9
